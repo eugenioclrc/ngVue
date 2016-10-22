@@ -1,3 +1,8 @@
+<style>
+.select2-results__option--highlighted{
+  font-weight: bold;
+}
+</style>
 <template>
 
 <div>
@@ -23,6 +28,7 @@
           <li v-for="(suggestion, index) in matches"
               v-bind:class="{'select2-results__option select2-results__option--highlighted': isActive(index)}"
               class="select2-results__option"
+              v-on:mouseover="current = index"
               @click="suggestionClick(index)"
           >
               {{ suggestion }}
@@ -95,7 +101,6 @@ export default {
   methods: {
     resize() {
       this.elwidth = this.$el.querySelector('.el-autocomplete-box').offsetWidth;
-      console.log('resize');
     },
     hide() {
       this.open = false;
@@ -131,11 +136,9 @@ export default {
         this.current += 1;
       }
     },
-
     isActive(index) {
       return index === this.current;
     },
-
     change() {
       if (this.open === false) {
         this.open = true;
