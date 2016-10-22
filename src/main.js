@@ -4,7 +4,7 @@ import App from './App';
 
 angular.module('testapp', [])
 .directive('vueEl', () => ({
-  restrict: 'A',
+  restrict: 'E',
   link: (scope, el) => {
     /* eslint-disable no-new */
     new Vue({
