@@ -2,7 +2,10 @@
   <div id="app">
     <img src="./assets/logo.png">
     <div class="container" style="padding-top:50px;">
-      <autocomplete :suggestions="cities" :selection="value"></autocomplete>
+      <autocomplete
+      :suggestions="cities"
+      :matches="matches"
+      :selected="value"></autocomplete>
     </div>
     <div class="preview">
 		<h1>Data Selected</h1>
@@ -29,7 +32,9 @@
 							<div class="JScommonflights">
 								<div class="row" style="margin-top:10px;">
 									<div class="col-xs-12">
-                    <autocomplete :suggestions="cities" :selection="value"></autocomplete>
+                    <autocomplete :suggestions="cities"
+                    :matches="matches"
+                    :selection="value"></autocomplete>
 									</div>
 								</div>
               </div>
@@ -50,9 +55,21 @@ export default {
   components: {
     Hello, autocomplete,
   },
+  methods: {
+    matches() {
+      return this.cities;
+    },
+  },
   data() {
     return {
       cities: [
+        'Caballito', 'Palermo', 'Ezeiza',
+        'Caballito', 'Palermo', 'Ezeiza',
+        'Caballito', 'Palermo', 'Ezeiza',
+        'Caballito', 'Palermo', 'Ezeiza',
+        'Caballito', 'Palermo', 'Ezeiza',
+        'Caballito', 'Palermo', 'Ezeiza',
+        'Caballito', 'Palermo', 'Ezeiza',
         'Caballito', 'Palermo', 'Ezeiza',
       ],
       value: '',
