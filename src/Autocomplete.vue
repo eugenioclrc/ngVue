@@ -1,5 +1,3 @@
-<style>
-</style>
 <template>
 
 <div>
@@ -13,12 +11,11 @@
   			<input class="select2-search__field select2-input"
         v-bind:class="{'select2-focused': open, 'select2-active': loading}"
         type="search"
-        @keydown.enter="enter"
-        @keydown.down="down"
-        @keydown.up="up"
-        @keydown.esc="hide"
-        @input="change"
-        @blur="hide"
+        v-on:keydown.enter="enter"
+        v-on:keydown.down="down"
+        v-on:keydown.up="up"
+        v-on:keydown.esc="hide"
+        v-on:input="change"
       v-model="selection">
   		</span>
 			<span class="select2-results">
@@ -27,9 +24,8 @@
               v-bind:class="{'select2-results__option select2-highlighted': isActive(index)}"
               class="select2-results__option"
               v-on:mouseover="current = index"
-              @click="suggestionClick(index)"
-              v-html="suggestion.selformat"
-          >
+              v-on:click="enter"
+              v-html="suggestion.selformat">
           </li>
           <ul v-if="loading">
             <li class="select2-results__option select2-results__message">
@@ -54,18 +50,18 @@
 
     <div class="select2-container big half-bottom select2-custom-container select2-allowclear
     el-autocomplete-box"
-    @click = 'openSearchInput'
+    v-on:click="openSearchInput"
     style="width: 100%;height:35px;">
-      <a href="javascript:void(0)" class="select2-choice" tabindex="-1">
+      <a href="javascript:void(0)" class="select2-choice">
         <span class="select2-chosen">Buenos Aires, Argentina - Todos los aeropuert, Argentina</span>
       </a>
-
     </div>
-    <pre>{{$data }}</pre>
+    <pre>{{selected }}</pre>
   </div>
 </template>
 <script>
 /* global window */
+/* global document */
 
 export default {
   /* elwidth: () => this.$el.querySelector('.el-autocomplete-box').offsetWidth */
@@ -80,7 +76,6 @@ export default {
       results: [],
     };
   },
-
   props: {
     matches: {
       type: Function,
@@ -91,7 +86,6 @@ export default {
       twoWay: true,
     },
   },
-
   computed: {
     url() {
       return `https://api.turismocity.com/flights/location?cc=AR&departure=&q=${this.selection}`;
@@ -99,15 +93,23 @@ export default {
   },
 
   methods: {
+    clickEvt(e) {
+      // outside click
+      if (!this.$el.contains(e.target)) {
+        this.hide();
+      }
+    },
     resize() {
       this.elwidth = this.$el.querySelector('.el-autocomplete-box').offsetWidth;
     },
     hide() {
       this.open = false;
       window.removeEventListener('resize', this.resize);
+      document.body.removeEventListener('click', this.clickEvt, false);
     },
     openSearchInput() {
       window.addEventListener('resize', this.resize);
+      document.body.addEventListener('click', this.clickEvt, false);
       this.resize();
       if (this.open === false) {
         this.open = true;
@@ -120,12 +122,16 @@ export default {
       });
       this.change();
     },
-    enter() {
-      // this.selection = this.matches[this.current];
+    enter(ev) {
+      if (ev) {
+        ev.preventDefault();
+      }
+
+      this.selected.value = this.results[this.current];
       this.open = false;
     },
     down() {
-      this.current = Math.min(this.suggestions.length - 1, this.current + 1);
+      this.current = Math.min(this.results.length - 1, this.current + 1);
     },
     up() {
       this.current = Math.max(0, this.current - 1);
@@ -244,10 +250,6 @@ export default {
       });
       this.ajax = ret;
       xhr.send();
-    },
-    suggestionClick(/* index */) {
-      this.open = false;
-      // this.selection = this.matches[index];
     },
   },
 };

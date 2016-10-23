@@ -3,7 +3,6 @@
     <img src="./assets/logo.png">
     <div class="container" style="padding-top:50px;">
       <autocomplete
-      :suggestions="cities"
       :matches="matches"
       :selected="value"></autocomplete>
     </div>
@@ -31,10 +30,11 @@
 						<fieldset>
 							<div class="JScommonflights">
 								<div class="row" style="margin-top:10px;">
-									<div class="col-xs-12">
-                    <autocomplete :suggestions="cities"
+                  <a v-on:click="setValue2">dsada</a>
+                  <div class="col-xs-12">
+                    <autocomplete
                     :matches="matches"
-                    :selection="value"></autocomplete>
+                    :selected.sync="value2"></autocomplete>
 									</div>
 								</div>
               </div>
@@ -57,22 +57,17 @@ export default {
   },
   methods: {
     matches() {
-      return this.cities;
+      return [];
+    },
+    setValue2() {
+      console.log(this.value2);
+      this.value2 = { hola: 'mundo' };
     },
   },
   data() {
     return {
-      cities: [
-        'Caballito', 'Palermo', 'Ezeiza',
-        'Caballito', 'Palermo', 'Ezeiza',
-        'Caballito', 'Palermo', 'Ezeiza',
-        'Caballito', 'Palermo', 'Ezeiza',
-        'Caballito', 'Palermo', 'Ezeiza',
-        'Caballito', 'Palermo', 'Ezeiza',
-        'Caballito', 'Palermo', 'Ezeiza',
-        'Caballito', 'Palermo', 'Ezeiza',
-      ],
-      value: '',
+      value: { value: '' },
+      value2: { def: 44 },
     };
   },
 };
