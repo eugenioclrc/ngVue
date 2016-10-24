@@ -121,7 +121,11 @@ export default {
         ev.preventDefault();
       }
 
-      this.selected.value = this.results[this.current];
+      const r = this.results[this.current];
+      this.selected.value = {
+        value: r.id,
+        text: r.text,
+      };
       this.open = false;
     },
     down() {
@@ -134,6 +138,7 @@ export default {
       return index === this.current;
     },
     change(q = '') {
+      this.current = 0;
       this.loading = true;
       this.query(q, (err, results = []) => {
         this.loading = false;

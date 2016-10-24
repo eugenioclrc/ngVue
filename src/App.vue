@@ -48,7 +48,7 @@
 
 <script>
 import Hello from './components/Hello';
-import autocomplete from './Autocomplete';
+import autocomplete from './components/Autocomplete';
 import ajax from './ajax';
 
 function formatResults(data) {
