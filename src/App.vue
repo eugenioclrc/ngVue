@@ -1,22 +1,10 @@
 <template>
-  <div id="app">
+<div id="app" style="text-align:left">
+  <div style="text-align: center">
     <img src="./assets/logo.png">
-    <div class="container" style="padding-top:50px;">
-      <autocomplete
-      :query="query"
-      :selected="value"></autocomplete>
-    </div>
-    <div class="preview">
-		<h1>Data Selected</h1>
-{{value }}
-	</div>
-
-
-
-
-
-
-  <div class="container-fluid tc-yellow-form" style="width:485px;text-align:left">
+  </div>
+  <br />
+  <div class="container-fluid tc-yellow-form" style="width:485px;">
   	<div class="row-fluid">
   		<a class="col-xs-6 tc-tab active">
   			<i class="icon-airplane"></i>Vuelos
@@ -29,12 +17,21 @@
   				<form method="get" action="/vuelos/resultados" class="JSflight-search-form ng-pristine ng-valid">
 						<fieldset>
 							<div class="JScommonflights">
-								<div class="row" style="margin-top:10px;">
-                  <a v-on:click="setValue2">dsada</a>
+                <div class="row" style="margin-top:10px;">
                   <div class="col-xs-12">
                     <autocomplete
                     :query="query"
-                    :selected="value2"></autocomplete>
+                    :placeholder="'Origen'"
+                    :selected="departure"></autocomplete>
+									</div>
+								</div>
+                <div class="row" style="margin-top:10px;">
+                  <div class="col-xs-12">
+                    <autocomplete
+                    :query="query"
+                    :departure="departure"
+                    :placeholder="'Destino'"
+                    :selected="arrival"></autocomplete>
 									</div>
 								</div>
               </div>
@@ -44,6 +41,23 @@
       </div>
     </div>
   </div>
+  <h1>Seleccion</h1>
+  <pre>
+    {{ [departure, arrival] }}
+  </pre>
+
+    <div class="container" style="padding-top:50px;">
+      <autocomplete
+      :query="query"
+      :placeholder="'Origen'"
+      :selected="value"></autocomplete>
+    </div>
+    <div class="preview">
+    <h1>Data Selected</h1>
+    <pre>
+      {{value }}
+    </pre>
+</div>
 </template>
 
 <script>
@@ -113,7 +127,6 @@ function formatResults(data) {
       gresults.push(cities[i].res[0]);
     }
   });
-
   return gresults;
 }
 
@@ -133,8 +146,12 @@ export default {
       this.cancelAjax();
       this.ajax = ajax('GET', url);
     },
-    query(q, callback) {
-      const url = `https://api.turismocity.com/flights/location?cc=AR&departure=&q=${q}`;
+    query(q, departure, callback) {
+      let d = '';
+      if (departure) {
+        d = (departure.value && departure.value.value) || 'none';
+      }
+      const url = `https://api.turismocity.com/flights/location?cc=AR&departure=${d}&q=${q}`;
       this.getWithCancel(url);
       this.ajax.promise
       .then((data) => {
@@ -144,15 +161,17 @@ export default {
         callback(err);
       });
     },
-    setValue2() {
-      console.log(this.value2);
-      this.value2 = { hola: 'mundo' };
-    },
   },
   data() {
     return {
       value: { value: '' },
-      value2: { def: 44 },
+      departure: {
+        value: {
+          value: 'EZE',
+          text: 'Buenos Aires Ministro Pistarini, Argentina',
+        },
+      },
+      arrival: { },
     };
   },
 };

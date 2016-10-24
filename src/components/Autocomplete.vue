@@ -1,5 +1,10 @@
-<template>
+<style>
 
+  .select2-chosen.select2-placeholder{
+    color: #b2b2b2;
+  }
+</style>
+<template>
 <div>
   <span class="select2-container select2-container--default select2-container--open"
    v-show="open" style="top: 4px;position:relative; float:left;"
@@ -53,10 +58,11 @@
     v-on:click="openSearchInput"
     style="width: 100%;height:35px;">
       <a href="javascript:void(0)" class="select2-choice">
-        <span class="select2-chosen">{{(selected.value && selected.value.text) || 'Seleccione un aeropuerto'}}</span>
+        <span class="select2-chosen" v-bind:class="{'select2-placeholder': textVal === placeholder}">
+          {{textVal}}
+        </span>
       </a>
     </div>
-    <pre>{{selected }}</pre>
   </div>
 </template>
 <script>
@@ -73,6 +79,7 @@ export default {
       loading: false,
       error: false,
       selection: (this.selected && this.selected.text) || '',
+      textVal: (this.selected.value && this.selected.value.text) || this.placeholder || '',
       results: [],
     };
   },
@@ -80,6 +87,12 @@ export default {
     query: {
       type: Function,
       required: true,
+    },
+    placeholder: {
+      type: String,
+    },
+    departure: {
+      type: Object,
     },
     selected: {
       required: true,
@@ -102,6 +115,7 @@ export default {
       document.body.removeEventListener('click', this.clickEvt, false);
     },
     openSearchInput() {
+      this.selection = (this.selected.value && this.selected.value.text) || '';
       window.addEventListener('resize', this.resize);
       document.body.addEventListener('click', this.clickEvt, false);
       this.resize();
@@ -112,7 +126,11 @@ export default {
       // en el primer tick hace el show
       this.$nextTick(() => {
         // en el segundo tick hace el focus
-        this.$nextTick(() => this.$el.querySelector('.select2-search__field').focus());
+        this.$nextTick(() => {
+          const field = this.$el.querySelector('.select2-search__field');
+          field.focus();
+          field.select();
+        });
       });
       this.change();
     },
@@ -126,6 +144,10 @@ export default {
         value: r.id,
         text: r.text,
       };
+      this.textVal = r.text;
+      this.selection = r.text;
+
+      this.$emit('select.val', this.selected.value);
       this.open = false;
     },
     down() {
@@ -140,13 +162,16 @@ export default {
     change(q = '') {
       this.current = 0;
       this.loading = true;
-      this.query(q, (err, results = []) => {
+      this.results = [];
+      const callback = (err, results = []) => {
         this.loading = false;
         if (err) {
           this.error = (err !== 'Cancelled');
         }
         this.results = results;
-      });
+      };
+
+      this.query(q, this.departure, callback);
 
       if (this.open === false) {
         this.open = true;
