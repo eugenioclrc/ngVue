@@ -15,7 +15,7 @@
         v-on:keydown.down="down"
         v-on:keydown.up="up"
         v-on:keydown.esc="hide"
-        v-on:input="change"
+        v-on:input="change(selection)"
       v-model="selection">
   		</span>
 			<span class="select2-results">
@@ -77,7 +77,7 @@ export default {
     };
   },
   props: {
-    matches: {
+    query: {
       type: Function,
       required: true,
     },
@@ -86,12 +86,6 @@ export default {
       twoWay: true,
     },
   },
-  computed: {
-    url() {
-      return `https://api.turismocity.com/flights/location?cc=AR&departure=&q=${this.selection}`;
-    },
-  },
-
   methods: {
     clickEvt(e) {
       // outside click
@@ -139,117 +133,20 @@ export default {
     isActive(index) {
       return index === this.current;
     },
-    change() {
-      this.getWithCancel();
-      this.ajax.promise
-      .then((data) => {
-        const results = [];
-        data.forEach((e) => {
-          const textIcon = (e.type === 'Airport') ?
-            '<i class="icon-airplane"></i> ' : '<i class="icon-building"></i> ';
-
-          results.push({
-            city: e.city,
-            clase: 'airport-option',
-            country: e.country,
-            id: e.iata,
-            ord: e.ord,
-            selformat: `${textIcon}${e.name} <b>(${e.iata})</b> <small>${e.country}</small>`,
-            text: `${e.name}, ${e.country}`,
-            tipo: e.type,
-          });
-        });
-
-        const cities = {};
-        const gresults = [];
-
-        /*
-        if (term) {
-          results.sort((a, b) => {
-            return (a.ord > b.ord);
-          });
+    change(q = '') {
+      this.loading = true;
+      this.query(q, (err, results = []) => {
+        this.loading = false;
+        if (err) {
+          this.error = (err !== 'Cancelled');
         }
-        */
-        results.forEach((r) => {
-          const k = `${r.country}-${r.city}`;
-          if (!cities[k]) {
-            cities[k] = {
-              city: r.city,
-              country: r.country,
-              res: [],
-            };
-          }
-          cities[k].res.push(r);
-        });
-
-        const firstCitySort = (a, b) => {
-          if (b.tipo === 'City') {
-            return 1;
-          }
-          return -1;
-        };
-
-        Object.keys(cities).forEach((i) => {
-          if (cities[i].res.length > 1) {
-            cities[i].res.sort(firstCitySort);
-
-            cities[i].res.forEach((c) => {
-              const clase = (c.tipo === 'City')
-              ? 'select2-result-with-children'
-              : 'select2-result-children';
-              gresults.push(Object.assign(c, { clase }));
-            });
-          } else {
-            cities[i].res[0].clase = 'select2-result-last';
-            gresults.push(cities[i].res[0]);
-          }
-        });
-
-        this.results = gresults;
+        this.results = results;
       });
+
       if (this.open === false) {
         this.open = true;
         this.current = 0;
       }
-    },
-    cancelAjax() {
-      if (this.ajax) {
-        this.ajax.cancel();
-      }
-    },
-    getWithCancel() {
-      this.cancelAjax();
-      const xhr = new window.XMLHttpRequest();
-      xhr.open('GET', this.url, true);
-      let cancelPromise = () => {};
-      const ret = {
-        promise: new Promise((resolve, reject) => {
-          xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 400) {
-              resolve(JSON.parse(xhr.responseText));
-            } else {
-              reject(new Error(xhr.status));
-            }
-          };
-          cancelPromise = () => {  // SPECIFY CANCELLATION
-            xhr.abort(); // abort request
-            reject(new Error('Cancelled')); // reject the promise
-          };
-          xhr.onerror = reject;
-        }),
-      };
-      ret.cancel = cancelPromise;
-      this.loading = true;
-      ret.promise
-      .then(() => {
-        this.loading = false;
-      })
-      .catch((err) => {
-        this.loading = false;
-        this.error = (err !== 'Cancelled');
-      });
-      this.ajax = ret;
-      xhr.send();
     },
   },
 };
