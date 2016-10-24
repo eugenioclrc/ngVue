@@ -53,7 +53,7 @@
     v-on:click="openSearchInput"
     style="width: 100%;height:35px;">
       <a href="javascript:void(0)" class="select2-choice">
-        <span class="select2-chosen">Buenos Aires, Argentina - Todos los aeropuert, Argentina</span>
+        <span class="select2-chosen">{{(selected.value && selected.value.text) || 'Seleccione un aeropuerto'}}</span>
       </a>
     </div>
     <pre>{{selected }}</pre>
