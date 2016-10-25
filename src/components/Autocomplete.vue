@@ -143,7 +143,7 @@ export default {
       this.textVal = r.text;
       this.selection = r.text;
 
-      this.$emit('select.val', this.selected.value);
+      this.$emit('select-val', this.selected.value);
       this.open = false;
     },
     down() {
