@@ -70,7 +70,6 @@
 /* global document */
 
 export default {
-  /* elwidth: () => this.$el.querySelector('.el-autocomplete-box').offsetWidth */
   data() {
     return {
       open: false,
@@ -90,9 +89,6 @@ export default {
     },
     placeholder: {
       type: String,
-    },
-    departure: {
-      type: Object,
     },
     selected: {
       required: true,
@@ -171,7 +167,7 @@ export default {
         this.results = results;
       };
 
-      this.query(q, this.departure, callback);
+      this.query(q, callback);
 
       if (this.open === false) {
         this.open = true;
