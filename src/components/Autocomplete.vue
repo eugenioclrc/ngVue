@@ -1,5 +1,14 @@
 <style>
-
+  .select2-results__option{
+    padding: 4px 7px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .select2-results__option.select2-results__message {
+    background: #f4f4f4;
+    display: list-item;
+    padding-left: 5px;
+  }
   .select2-chosen.select2-placeholder{
     color: #b2b2b2;
   }
@@ -24,30 +33,33 @@
       v-model="selection">
   		</span>
 			<span class="select2-results">
-				<ul class="select2-results__options" v-if="!error">
+				<ul class="select2-results__options select2-results__main" v-if="!error">
           <li v-for="(suggestion, index) in results"
-              v-bind:class="{'select2-results__option select2-highlighted': isActive(index)}"
+              v-bind:class="{
+                'select2-highlighted': isActive(index),
+                'select2-selected': this.selectedIndex === index,
+              }"
               class="select2-results__option"
               v-on:mouseover="current = index"
               v-on:click="enter"
               v-html="suggestion.selformat">
           </li>
-          <ul v-if="loading">
-            <li class="select2-results__option select2-results__message">
-              Cargando...
-            </li>
-          </ul>
-          <ul v-if="!loading && (!results || results.length === 0)">
-            <li class="select2-results__option select2-results__message">
-              No se encontraron resultados
-            </li>
-          </ul>
-          <ul v-if="error">
-            <li class="select2-results__option select2-results__message">
-              The results could not be loaded.
-            </li>
-          </ul>
-				</ul>
+        </ul>
+        <ul class="select2-results__options" v-if="loading">
+          <li class="select2-results__option select2-results__message">
+            Cargando...
+          </li>
+        </ul>
+        <ul class="select2-results__options" v-if="!loading && (!results || results.length === 0)">
+          <li class="select2-results__option select2-results__message">
+            No se encontraron resultados
+          </li>
+        </ul>
+        <ul class="select2-results__options" v-if="error">
+          <li class="select2-results__option select2-results__message">
+            The results could not be loaded.
+          </li>
+        </ul>
 			</span>
 		</span>
 	</span>
@@ -74,6 +86,7 @@ export default {
     return {
       open: false,
       current: 0,
+      selectedIndex: 0,
       elwidth: 0,
       loading: false,
       error: false,
@@ -128,13 +141,15 @@ export default {
           field.select();
         });
       });
-      this.change();
+      if (this.results.length === 0) {
+        this.change();
+      }
     },
     enter(ev) {
       if (ev) {
         ev.preventDefault();
       }
-
+      this.selectedIndex = this.current;
       const r = this.results[this.current];
       this.selected.value = {
         value: r.id,
@@ -148,9 +163,31 @@ export default {
     },
     down() {
       this.current = Math.min(this.results.length - 1, this.current + 1);
+      this.updateScroll();
     },
     up() {
       this.current = Math.max(0, this.current - 1);
+      this.updateScroll();
+    },
+    updateScroll() {
+      if (this.results.length === 0) {
+        return;
+      }
+      const selectUl = this.$el.querySelector('.select2-results__main');
+      if (!selectUl) {
+        return;
+      }
+      const el = selectUl.querySelector('li');
+      if (!el) {
+        return;
+      }
+      const itemPos = el.offsetHeight * this.current;
+      const itemPosBottom = itemPos + el.offsetHeight;
+      if (itemPos <= selectUl.scrollTop) {
+        selectUl.scrollTop -= el.offsetHeight;
+      } else if (itemPosBottom >= (selectUl.scrollTop + selectUl.offsetHeight)) {
+        selectUl.scrollTop += el.offsetHeight;
+      }
     },
     isActive(index) {
       return index === this.current;
@@ -158,7 +195,7 @@ export default {
     change(q = '') {
       this.current = 0;
       this.loading = true;
-      this.results = [];
+      // this.results = [];
       const callback = (err, results = []) => {
         this.loading = false;
         if (err) {

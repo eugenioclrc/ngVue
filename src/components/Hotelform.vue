@@ -15,9 +15,20 @@
 <script>
 import Autocomplete from './Autocomplete';
 import ajax from '../ajax';
+import storageWithExpiration from '../storageWithExpiration';
+
+function formatResults(data) {
+  return data.map(d => ({
+    selformat: d.searchname,
+    count: d.count,
+    country_code: d.country_code,
+    id: d.slug,
+    text: d.searchname,
+  })).sort((a, b) => b.count - a.count);
+}
 
 export default {
-  name: 'flight-form',
+  name: 'hotel-form',
   components: {
     Autocomplete,
   },
@@ -39,18 +50,17 @@ export default {
       this.ajax = ajax('GET', url);
     },
     fetch(url, callback) {
+      const savedData = storageWithExpiration.load(url);
+      if (savedData) {
+        callback(null, formatResults(savedData));
+        return;
+      }
+
       this.getWithCancel(url);
       this.ajax.promise
       .then((data) => {
-        const results = data.map(d => ({
-          selformat: d.searchname,
-          count: d.count,
-          country_code: d.country_code,
-          id: d.slug,
-          text: d.searchname,
-        })).sort((a, b) => b.count - a.count);
-
-        callback(null, results);
+        storageWithExpiration.save(url, data, 60 * 60 * 1000);
+        callback(null, formatResults(data));
       })
       .catch((err) => {
         callback(err);
