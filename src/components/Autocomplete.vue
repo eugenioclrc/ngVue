@@ -81,6 +81,17 @@
 /* global window */
 /* global document */
 
+/**
+ * Shuffles array in place. ES6 version
+ * @param {Array} a items The array containing the items.
+ */
+function shuffle(_a) {
+  const a = _a;
+  for (let i = a.length; i; i -= 1) {
+    const j = Math.floor(Math.random() * i);
+    [a[i - 1], a[j]] = [a[j], a[i - 1]];
+  }
+}
 export default {
   data() {
     return {
@@ -93,6 +104,7 @@ export default {
       selection: (this.selected && this.selected.text) || '',
       textVal: (this.selected.value && this.selected.value.text) || this.placeholder || '',
       results: [],
+      items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
     };
   },
   props: {
@@ -109,6 +121,11 @@ export default {
     },
   },
   methods: {
+    add() {
+      const r = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+      shuffle(r);
+      this.items = r.slice(0, 10);
+    },
     clickEvt(e) {
       // outside click
       if (!this.$el.contains(e.target)) {
