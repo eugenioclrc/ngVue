@@ -38,7 +38,7 @@ export default {
       debugger;
       console.log(elDom.previousElementSibling && elDom.previousElementSibling.style.top);
     },*/
-    leave(elDom) {
+    beforeLeave(elDom) {
       // console.log(elDom.previousElementSibling && elDom.previousElementSibling.style.top);
       // const el = elDom;
       // let prev = 0;
@@ -79,13 +79,23 @@ export default {
       if (!el.previousElementSibling) {
         return;
       }
-      if (el.previousElementSibling.style.top) {
-        const top = el.previousElementSibling.offsetTop + el.previousElementSibling.offsetHeight;
-        el.style.top = `${top}px`;
-      } else {
-        const top = el.previousElementSibling.offsetTop + el.previousElementSibling.offsetHeight;
-        el.style.top = `${top}px`;
+
+      let extra = 0;
+      let e = el.previousElementSibling;
+      while (e) {
+        if (e.classList.contains('item-transition-leave-active')) {
+          extra += e.offsetHeight;
+        }
+        e = e.previousElementSibling;
       }
+
+      /* if (el.previousElementSibling.style.top) {
+        const top = el.previousElementSibling.offsetTop + el.previousElementSibling.offsetHeight;
+        el.style.top = `${top + extra}px`;
+      } else {*/
+      const top = el.previousElementSibling.offsetTop + el.previousElementSibling.offsetHeight;
+      el.style.top = `${top + extra}px`;
+      // }
     },
     afterLeave() {
       /* const el = elDom;

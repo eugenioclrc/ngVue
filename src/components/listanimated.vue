@@ -43,13 +43,14 @@
     hr
     h4 complex animations
     a.btn.btn-default(href="#", v-on:click.prevent="addRemove") add remove
+    a.btn.btn-default(href="#", v-on:click.prevent="addRemove2") add remove 2
     a.btn.btn-default(href="#", v-on:click.prevent="addRemoveRnd") add remove Rnd
     a.btn.btn-default(href="#", v-on:click.prevent="addRemoveBatchRnd") add remove batch Rnd
     hr
 
 
     transition-group(name="item-transition", tag="ul", class="list-item",
-    v-on:leave="leave"
+    v-on:before-leave="beforeLeave"
     v-on:before-enter="beforeEnter",
     )
       li.list-complete-item(v-for="item in items", v-bind:key="item") {{ item }}
@@ -98,6 +99,14 @@ export default {
       const item = Math.max(...this.items) + 1;
       this.items.splice(0, 1);
       this.items.splice(0, 0, item);
+    },
+    addRemove2() {
+      const item = Math.max(...this.items) + 1;
+      const item2 = Math.max(...this.items) + 1;
+      this.items.splice(0, 1);
+      this.items.splice(0, 0, item);
+      this.items.splice(2, 1);
+      this.items.splice(2, 0, item2);
     },
     addRemoveRnd() {
       const item = Math.max(...this.items) + 1;
